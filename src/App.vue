@@ -3,8 +3,8 @@ import SignIn from './components/SignIn.vue'
 import { createClient } from '@supabase/supabase-js'
 import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/SupabaseAuthClient'
 
-const SUPABASE_URL = 'https://phtbhjenvsjjzrsdmpfz.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBodGJoamVudnNqanpyc2RtcGZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjMzMzc2MjYsImV4cCI6MTk3ODkxMzYyNn0.n_GQka_i9sXNyVOopzZYRbVIZoHXpLxufZLrnfjEbTg'
+const SUPABASE_URL = 'https://idgwvxhrjdggndemqwpo.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkZ3d2eGhyamRnZ25kZW1xd3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjM1Nzg4NjYsImV4cCI6MTk3OTE1NDg2Nn0.oCy1yz68m1eqCMzJMd8yGTzvCNOcG7p1_Prwh3Rj_6Y'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 supabase.auth.onAuthStateChange((event,session) => {
