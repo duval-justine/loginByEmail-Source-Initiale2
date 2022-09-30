@@ -12,25 +12,25 @@ supabase.auth.onAuthStateChange((event,session) => {
     document.getElementById('statut').innerHTML='You are logged with the email:'+session.user.email;
   }
 })
-async function logout(){ 
-      try { 
-        const { user, session, error } = await supabase.auth.signOut(); 
-        if (error) throw error; 
-        document.getElementById('status').innerHTML='You are disconnected !' 
-      } catch (error) { 
-        alert(error.error_description || error.message); 
-      }  
-    }
-    async function login(){ 
-      try { 
-        const { user, session, error } = await supabase.auth.signIn({ 
-          provider: 'github', 
-        }); 
-        if (error) throw error; 
-      } catch (error) { 
-        alert(error.error_description || error.message); 
-      }  
-    }
+// async function logout(){ 
+//       try { 
+//         const { user, session, error } = await supabase.auth.signOut(); 
+//         if (error) throw error; 
+//         document.getElementById('status').innerHTML='You are disconnected !' 
+//       } catch (error) { 
+//         alert(error.error_description || error.message); 
+//       }  
+//     }
+//     async function login(){ 
+//       try { 
+//         const { user, session, error } = await supabase.auth.signIn({ 
+//           provider: 'github', 
+//         }); 
+//         if (error) throw error; 
+//       } catch (error) { 
+//         alert(error.error_description || error.message); 
+//       }  
+//     }
 </script>
 
 <template>    
@@ -88,12 +88,32 @@ async function logout(){
     //this method allows a new user to sign up the system. Once done, the user receives an email
     //asking for account validation. Once the validation made the user is added to the system
     async register(){
-
+      try {
+      const { user, session, error } = await supabase.auth.signUp({
+        email: this.email,
+        password: this.passwd,
+      });
+      if (error) throw error;
+    } catch (error) {
+      alert(error.error_description || error.message);
+      }
     },
     //this method allows the already registred user to log in the system.
     //only authenticated users can later add or read the poems
     async login(){
-
+      try {
+      const { user, session, error } = await supabase.auth.signIn({
+        email: this.email,
+        password: this.passwd,
+      });
+      if (error) throw error;
+      else {
+        document.getElementById('signOut').style.visibility='hidden'
+        document.getElementById('addPoem').style.visibility='visible'
+      }
+      } catch (error) {
+        alert(error.error_description || error.message);
+      }
     },
     //this method allows to add new poem for the authenticated user (after sign in) 
     //it is called when the user click on the add poem button after being entered
