@@ -22,6 +22,12 @@ import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/Supaba
     <div class="hidden" id="addPoem">
       <div><SignIn msg="Write your poem !" /></div>
       <h3>The poem remains private, until you make it public</h3>
+      <select required name="Language" v-model="Language" >
+              <option>Français</option>
+              <option>Anglais</option>
+              <option>Espagnol</option>
+              <option>German</option>
+      </select>
       <label>Poem's title</label><br>
 	      <input type="text" required name="title" v-model="title" placeholder="edit me"><br>
 	      <label>Poem's content</label><br>
@@ -61,7 +67,7 @@ import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/Supaba
 
   var poemList
   var currentpoem
-  
+
   export default {
     methods: {  
     //this method allows a new user to sign up the system. Once done, the user receives an email
