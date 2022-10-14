@@ -121,7 +121,7 @@ import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/Supaba
         const { data, error } = await supabase
         .from('poems')
         .insert([
-          { hidden: this.hidden, email:this.email, title:this.title, content: this.content, illustrationurl: res }
+          { hidden: this.hidden, email:this.email, title:this.title, content: this.content, illustrationurl: res, Language:this.Language }
         ])
         if(error) throw(error)
  
