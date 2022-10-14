@@ -3,34 +3,6 @@ import SignIn from './components/SignIn.vue'
 import FamousPoets from './components/FamousPoets.vue'
 import { createClient } from '@supabase/supabase-js'
 import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/SupabaseAuthClient'
-
-supabase.auth.onAuthStateChange((event,session) => {
-  if(session==null){
-    document.getElementById('status').innerHTML='You are not logged !!!';
-  }else{
-    //alert('session value:'+JSON.stringify(session))
-    document.getElementById('statut').innerHTML='You are logged with the email:'+session.user.email;
-  }
-})
-// async function logout(){ 
-//       try { 
-//         const { user, session, error } = await supabase.auth.signOut(); 
-//         if (error) throw error; 
-//         document.getElementById('status').innerHTML='You are disconnected !' 
-//       } catch (error) { 
-//         alert(error.error_description || error.message); 
-//       }  
-//     }
-//     async function login(){ 
-//       try { 
-//         const { user, session, error } = await supabase.auth.signIn({ 
-//           provider: 'github', 
-//         }); 
-//         if (error) throw error; 
-//       } catch (error) { 
-//         alert(error.error_description || error.message); 
-//       }  
-//     }
 </script>
 
 <template>    
@@ -61,6 +33,10 @@ supabase.auth.onAuthStateChange((event,session) => {
 	      <!--<img id="illustration" src="./assets/null.png" alt="poem illustration" width="75" height="75"/><br>-->
         <input type="checkbox" v-model="hidden" value=true/>
         <label>Hidden poem</label>
+        <div>
+          <input type="text" v-model="mot">
+          <button v-on:click="filtrer()">Recherche</button>
+        </div>
       <br><button v-on:click="createPoem()">Add the poem</button>
       <button v-on:click="fetchPoems()">List of poems</button><br>
       <label for="poemtitle" id="poemtitle" style="color: teal;font-weight: 500;"> ... </label> 
@@ -83,55 +59,127 @@ supabase.auth.onAuthStateChange((event,session) => {
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkZ3d2eGhyamRnZ25kZW1xd3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjM1Nzg4NjYsImV4cCI6MTk3OTE1NDg2Nn0.oCy1yz68m1eqCMzJMd8yGTzvCNOcG7p1_Prwh3Rj_6Y'
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
+  var poemList
+  var currentpoem
+  
   export default {
-  methods: {  
+    methods: {  
     //this method allows a new user to sign up the system. Once done, the user receives an email
     //asking for account validation. Once the validation made the user is added to the system
     async register(){
+ 
       try {
-      const { user, session, error } = await supabase.auth.signUp({
-        email: this.email,
-        password: this.passwd,
-      });
-      if (error) throw error;
-    } catch (error) {
-      alert(error.error_description || error.message);
-      }
+          const { user, session, error } = await supabase.auth.signUp({
+            email: this.email,
+            password: this.passwd
+          });
+          if (error) throw error;  
+        } catch (error) {
+          alert(error.error_description || error.message);
+        }  
+ 
     },
     //this method allows the already registred user to log in the system.
     //only authenticated users can later add or read the poems
     async login(){
       try {
-      const { user, session, error } = await supabase.auth.signIn({
-        email: this.email,
-        password: this.passwd,
-      });
-      if (error) throw error;
-      else {
-        document.getElementById('signOut').style.visibility='hidden'
-        document.getElementById('addPoem').style.visibility='visible'
-      }
-      } catch (error) {
-        alert(error.error_description || error.message);
-      }
+          const { user, session, error } = await supabase.auth.signIn({
+            email: this.email,
+            password: this.passwd
+          });
+          if (error) throw error;
+          else {
+            document.getElementById('signOut').style.visibility='hidden'
+            document.getElementById('addPoem').style.visibility='visible'
+          }
+        } catch (error) {
+          alert(error.error_description || error.message)};  
+ 
     },
-    //this method allows to add new poem for the authenticated user (after sign in) 
+    //this method allows to add new poem for the authenticated user (after sign in)
     //it is called when the user click on the add poem button after being entered
     //the title, the content, the visibility and the associated illustration
     async createPoem(){
-    
+ 
+      var res;
+ 
+      const { data: objects, error } = await supabase.storage
+      .from('images')
+      .upload(supabase.auth.user().id+"_"+file.files[0].name, file.files[0])
+ 
+      res = supabase.storage
+      .from('images')
+      .getPublicUrl(supabase.auth.user().id+"_"+file.files[0].name).data.publicURL;
+ 
+      try{
+        const { data, error } = await supabase
+        .from('poems')
+        .insert([
+          { hidden: this.hidden, email:this.email, title:this.title, content: this.content, illustrationurl: res }
+        ])
+        if(error) throw(error)
+ 
+      } catch(error) {alert(error.error_description || error.message)}
+   
     },
     //this method allows to extract all readable poems of the authenticated user
-    //including his peoms and the not hidden poems. This policy is implemented by the supabase system 
+    //including his peoms and the not hidden poems. This policy is implemented by the supabase system
     async fetchPoems(){
-        
+        try{
+        const { data, error } = await supabase
+        .from('poems')
+        .select()
+        poemList=data
+        if (error) throw error;
+        if(data.length>0){
+          document.getElementById('poemtitle').innerHTML=data[0].title+"  "
+          document.getElementById('poemcontent').value=data[0].content
+          document.getElementById('poemillustration').src=data[0].illustrationurl
+        }
+ 
+        currentpoem=0;
+ 
+        } catch (error) {
+          alert(error.error_description || error.message);
+        }
     },
     //this function allows to display the next accessibe poem for the current user
     //the fetch button should be selected before
     nextPoem(){
-    
-    }
+ 
+      if(currentpoem<poemList.length-1) {
+        currentpoem++
+        document.getElementById('poemtitle').innerHTML=poemList[currentpoem].title+"  "
+        document.getElementById('poemcontent').value=poemList[currentpoem].content
+        document.getElementById('poemillustration').src=poemList[currentpoem].illustrationurl
+ 
+      }
+     
+    },
+
+    async filtrer(){
+      try{
+        const { data, error } = await supabase
+        .from('poems')
+        .select()
+        .like('title','%'+this.mot+'%')
+        poemList=data
+        if(data.length>0){
+            document.getElementById('poemtitle').innerHTML=data[0].title+"    "
+            document.getElementById('poemcontent').value=data[0].content
+            document.getElementById('poemillustration').src=data[0].illustrationurl
+        }
+        currentpoem=0;
+            if (error) throw error;
+            }
+            catch (error) {
+              alert(error.error_description || error.message);
+            }
+  },
   }  
+ 
+
+
 }
 </script>
 
